@@ -1,6 +1,6 @@
 # Jacky's Web Apps
 
-A collection of simple, fun, ad-free interactive web apps for families. The project is built with plain HTML, CSS, and vanilla JavaScript, and can be hosted on Nginx, a NAS, or any static web server.
+A collection of simple, fun, ad-free interactive web apps for families. The project is built with plain HTML, CSS, and vanilla JavaScript, and is hosted as a static site with GitHub Pages.
 
 ## Features
 
@@ -32,7 +32,7 @@ Entry point: [`webapp/baby_slide.html`](webapp/baby_slide.html)
 | [`webapp/baby_tap.html`](webapp/baby_tap.html) | Baby Color Tap |
 | [`webapp/baby_slide.html`](webapp/baby_slide.html) | Baby Slide |
 | [`author.html`](author.html) | Author profile and personal information |
-| [`50x.html`](50x.html) | 500 error page |
+| [`404.html`](404.html) | Custom 404 error page for GitHub Pages |
 
 ## Project Structure
 
@@ -40,7 +40,7 @@ Entry point: [`webapp/baby_slide.html`](webapp/baby_slide.html)
 .
 ├── index.html                 # Web App launcher
 ├── author.html                # Author profile page
-├── 50x.html                   # 500 error page
+├── 404.html                   # Custom GitHub Pages 404 page
 ├── image/
 │   └── profile.png            # Author profile photo
 └── webapp/
@@ -66,9 +66,14 @@ python3 -m http.server 8080
 
 Then open <http://localhost:8080>.
 
-### Deploy with Nginx
+### Deploy with GitHub Pages
 
-Set the project directory as the Nginx document root and configure `index.html` as the default entry page. Pages under `webapp/` load shared resources using relative paths, so preserve the existing directory structure.
+1. Push the project to a GitHub repository.
+2. Open the repository's **Settings → Pages** section.
+3. Select the branch containing the project and the `/ (root)` folder as the publishing source.
+4. Save the configuration and open the generated Pages URL.
+
+The publishing source must contain `index.html` at its top level. Pages under `webapp/` use relative paths for shared resources, so preserve the existing directory structure. The custom `404.html` file is automatically used for missing pages.
 
 This project does not require Node.js, package installation, or a build step. The launcher and author page load Google Fonts; system fallback fonts are used if Google Fonts is unavailable.
 
@@ -98,4 +103,3 @@ This project does not require Node.js, package installation, or a build step. Th
 ## License
 
 No open-source license is currently included. Contact the author before publishing, modifying, or redistributing this project.
-
