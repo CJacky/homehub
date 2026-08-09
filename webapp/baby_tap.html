@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Baby Color Tap 🎨</title>
+    <!-- Load shared CSS and JavaScript core -->
+    <link rel="stylesheet" href="common.css">
+    <script src="common.js"></script>
+    <style>
+        body {
+            background-color: #FFB6C1;
+            transition: background-color 0.2s ease-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 7vw, 3.8rem);
+            color: white;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            pointer-events: none;
+            margin: 0 20px;
+            font-weight: 800;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            transform: translate(-50%, -50%) scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes rippleAnim {
+            0% {
+                width: 20px;
+                height: 20px;
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                width: 260px;
+                height: 260px;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Tap to Change Color! 🎨</h1>
+
+    <script>
+        let currentColor = BabyModel.tapColors[0];
+
+        function changeColor() {
+            currentColor = BabyModel.nextColor(currentColor);
+            document.body.style.backgroundColor = currentColor;
+        }
+
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        function handleTouch(x, y) {
+            changeColor();
+
+            WebAudioEngine.playTone(BabyModel.randomItem(BabyModel.tapFrequencies), 0.12);
+            createRipple(x, y);
+        }
+
+        // Multi-touch (Touch Events)
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                handleTouch(touch.clientX, touch.clientY);
+            }
+        }, { passive: false });
+
+        // Mouse and stylus (Pointer Events)
+        window.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'touch') return;
+            handleTouch(e.clientX, e.clientY);
+        });
+    </script>
+</body>
+
+</html>

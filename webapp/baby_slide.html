@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Full-screen mobile layout with zoom disabled to prevent accidental input -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- iOS Web App settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Baby Slide ⭕</title>
+    <!-- Load shared CSS and JavaScript core -->
+    <link rel="stylesheet" href="common.css">
+    <script src="common.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #FFF6E9 0%, #E3F2FD 50%, #F3E5F5 100%);
+        }
+
+        /* Title and helper text */
+        .header {
+            position: absolute;
+            top: 6%;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.5s ease;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.2rem);
+            color: #2C3E50;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        p.subtitle {
+            margin: 8px 0 0 0;
+            font-size: clamp(1rem, 3.5vw, 1.4rem);
+            color: #6C7A89;
+            font-weight: 600;
+        }
+
+        /* Outlined circle (approximately one quarter of the screen) */
+        .draggable-circle {
+            position: absolute;
+            width: 50vmin;
+            height: 50vmin;
+            border: clamp(12px, 3.2vmin, 24px) solid #1A1A1A;
+            border-radius: 50%;
+            background-color: transparent;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), inset 0 0 0 4px rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%) scale(1);
+            cursor: grab;
+            z-index: 10;
+            touch-action: none;
+            will-change: left, top, transform;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+        }
+
+        /* Circle while dragging */
+        .draggable-circle.dragging {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28), inset 0 0 0 4px rgba(255, 255, 255, 0.8);
+            border-color: #000000;
+        }
+
+        /* Idle pulse animation to invite interaction */
+        .draggable-circle.pulse {
+            animation: pulseIdle 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulseIdle {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.06);
+            }
+        }
+
+        /* Visual marker for the central gravity point */
+        .center-target {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.08);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Baby Slide ⭕</h1>
+        <p class="subtitle">Slide off the screen and come back from the other side! 💫</p>
+    </div>
+
+    <!-- Central gravity guide -->
+    <div class="center-target"></div>
+
+    <!-- Outlined circle -->
+    <div class="draggable-circle pulse" id="circle"></div>
+
+    <script>
+        const circle = document.getElementById('circle');
+
+        // Physics state (inertia, acceleration, and central gravity)
+        let posX = window.innerWidth / 2;
+        let posY = window.innerHeight / 2;
+        let vx = 0;
+        let vy = 0;
+        let isDragging = false;
+
+        let lastPointerX = 0;
+        let lastPointerY = 0;
+
+        // Initialize the circle at the center
+        function centerCircle() {
+            posX = window.innerWidth / 2;
+            posY = window.innerHeight / 2;
+            vx = 0;
+            vy = 0;
+            circle.style.left = `${posX}px`;
+            circle.style.top = `${posY}px`;
+        }
+        centerCircle();
+
+        window.addEventListener('resize', () => {
+            if (!isDragging && Math.hypot(vx, vy) < 0.1) {
+                centerCircle();
+            }
+        });
+
+        // Pointer and touch event handling
+        circle.addEventListener('pointerdown', (e) => {
+            WebAudioEngine.playTone(440, 0.1, 'sine', true);
+
+            isDragging = true;
+            vx = 0;
+            vy = 0;
+
+            circle.setPointerCapture(e.pointerId);
+            circle.classList.remove('pulse');
+            circle.classList.add('dragging');
+
+            lastPointerX = e.clientX;
+            lastPointerY = e.clientY;
+            posX = e.clientX;
+            posY = e.clientY;
+
+            circle.style.left = `${posX}px`;
+            circle.style.top = `${posY}px`;
+        });
+
+        circle.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+
+            // Calculate movement delta and instantaneous velocity (vx, vy)
+            const deltaX = e.clientX - lastPointerX;
+            const deltaY = e.clientY - lastPointerY;
+
+            // Accumulate momentum in real time
+            vx = vx * 0.2 + deltaX * 0.8;
+            vy = vy * 0.2 + deltaY * 0.8;
+
+            posX = e.clientX;
+            posY = e.clientY;
+            lastPointerX = e.clientX;
+            lastPointerY = e.clientY;
+
+            circle.style.left = `${posX}px`;
+            circle.style.top = `${posY}px`;
+
+            // Create a colorful drag trail
+            ParticleEngine.createTrail(posX, posY);
+        });
+
+        function handlePointerUp(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            circle.classList.remove('dragging');
+
+            // Add momentum when the pointer is released
+            vx *= 1.35;
+            vy *= 1.35;
+        }
+
+        circle.addEventListener('pointerup', handlePointerUp);
+        circle.addEventListener('pointercancel', handlePointerUp);
+
+        // Physics loop with central gravity and screen wrapping
+        function updatePhysics() {
+            if (!isDragging) {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+
+                const dx = centerX - posX;
+                const dy = centerY - posY;
+                const distToCenter = Math.hypot(dx, dy);
+
+                // Central gravitational attraction (centripetal acceleration)
+                const gravityStrength = 0.0035;
+                vx += dx * gravityStrength;
+                vy += dy * gravityStrength;
+
+                // Drag damping so the circle settles gracefully at the center
+                vx *= 0.955;
+                vy *= 0.955;
+
+                posX += vx;
+                posY += vy;
+
+                // Screen wrapping: an object leaving one edge enters from the opposite edge
+                const margin = 50;
+                let wrapped = false;
+
+                if (posY < -margin) {
+                    posY = window.innerHeight + margin;
+                    wrapped = true;
+                } else if (posY > window.innerHeight + margin) {
+                    posY = -margin;
+                    wrapped = true;
+                }
+
+                if (posX < -margin) {
+                    posX = window.innerWidth + margin;
+                    wrapped = true;
+                } else if (posX > window.innerWidth + margin) {
+                    posX = -margin;
+                    wrapped = true;
+                }
+
+                if (wrapped) {
+                    WebAudioEngine.playArpeggio();
+                    ParticleEngine.createExplosion(posX, posY);
+                }
+
+                // Update position
+                circle.style.left = `${posX}px`;
+                circle.style.top = `${posY}px`;
+
+                // Create small sparkle trails while moving
+                if (Math.hypot(vx, vy) > 1.2) {
+                    ParticleEngine.createTrail(posX, posY);
+                }
+
+                // Enable the idle pulse after settling at the center
+                if (distToCenter < 3 && Math.hypot(vx, vy) < 0.1) {
+                    posX = centerX;
+                    posY = centerY;
+                    vx = 0;
+                    vy = 0;
+                    circle.style.left = `${posX}px`;
+                    circle.style.top = `${posY}px`;
+                    if (!circle.classList.contains('pulse')) {
+                        circle.classList.add('pulse');
+                    }
+                }
+            }
+
+            requestAnimationFrame(updatePhysics);
+        }
+        requestAnimationFrame(updatePhysics);
+    </script>
+</body>
+
+</html>

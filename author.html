@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacky's Personal Information and Author Profile</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0F172A;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-accent: #38BDF8;
+            --primary-gradient: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* Top navigation */
+        .nav-bar {
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Profile card */
+        .profile-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 36px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            margin-bottom: 36px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .profile-img {
+            width: 140px;
+            height: 160px;
+            border-radius: 18px;
+            border: 2px solid rgba(56, 189, 248, 0.4);
+            object-fit: cover;
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .profile-info h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .location-tag {
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary-accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            margin-bottom: 14px;
+        }
+
+        .profile-bio {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* Content sections */
+        .section-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+        }
+
+        .section-title span.icon {
+            font-size: 1.4rem;
+        }
+
+        /* List styling */
+        ul.custom-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.custom-list li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 14px;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        ul.custom-list li::before {
+            content: '•';
+            position: absolute;
+            left: 6px;
+            top: 0;
+            color: var(--primary-accent);
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        ul.custom-list li strong {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        /* Table styling */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        table.custom-table th,
+        table.custom-table td {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        table.custom-table th {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--primary-accent);
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        table.custom-table td {
+            background: rgba(15, 23, 42, 0.3);
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table.custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.custom-table tr:hover td {
+            background: rgba(56, 189, 248, 0.05);
+            color: var(--text-main);
+        }
+
+        .link-list a {
+            color: var(--primary-accent);
+            text-decoration: none;
+        }
+
+        .link-list a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 20px;
+            padding-top: 30px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Top navigation -->
+        <nav class="nav-bar">
+            <a href="index.html" class="back-btn">
+                <span>←</span>
+                <span>Back to Web App Launcher</span>
+            </a>
+        </nav>
+
+        <!-- Personal information card -->
+        <header class="profile-card">
+            <img class="profile-img" src="image/profile.png" alt="Jacky's profile photo">
+            <div class="profile-info">
+                <h1>Jacky</h1>
+                <p class="profile-bio">Focused on embedded systems, low-level architecture, system performance, and infrastructure engineering.</p>
+            </div>
+        </header>
+
+        <section class="section-box">
+            <h2 class="section-title">
+                <span class="icon">⚙️</span>
+                <span>Technical Interests</span>
+            </h2>
+            <ul class="custom-list">
+                <li><strong>Embedded Systems Architecture:</strong></li>
+                <li><strong>Low-Level Algorithms:</strong></li>
+                <li><strong>System Performance:</strong></li>
+            </ul>
+        </section>
+
+        <section class="section-box">
+            <h2 class="section-title">
+                <span class="icon">🔗</span>
+                <span>Contact and Links</span>
+            </h2>
+            <ul class="custom-list link-list">
+                <li><strong>GitHub:</strong> <a href="https://github.com" target="_blank" rel="noopener noreferrer">github.com/jacky</a></li>
+                <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/jacky-chen-129a45109/" target="_blank" rel="noopener noreferrer">linkedin.com/in/jacky-chen-129a45109</a></li>
+            </ul>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>This page is built with pure HTML/CSS, with no script overhead, and loads in &lt; 0.05 seconds.</p>
+            <p>&copy; 2026. All rights reserved.</p>
+        </footer>
+    </div>
+
+</body>
+
+</html>

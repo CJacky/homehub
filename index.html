@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacky's Web Apps Launcher 🚀</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0F172A;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-accent: #38BDF8;
+            --primary-gradient: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 960px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            font-weight: 400;
+        }
+
+        /* App launcher grid */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
+            margin-bottom: 50px;
+        }
+
+        /* Card design */
+        .app-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .app-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        .app-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .app-icon {
+            font-size: 2.8rem;
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        .app-title-group h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 4px;
+        }
+
+        .app-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary-accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .app-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            gap: 6px;
+            transition: gap 0.2s ease;
+        }
+
+        .app-card:hover .card-footer {
+            gap: 10px;
+            color: #7DD3FC;
+        }
+
+        /* Author information section */
+        .author-section {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .author-info-text h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .author-info-text p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .author-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .author-btn:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 40px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Jacky's Web Apps 🚀</h1>
+            <p>Simple, fun, ad-free interactive apps for families</p>
+        </header>
+
+        <!-- App list -->
+        <main class="apps-grid">
+            <!-- Baby Color Tap -->
+            <a href="webapp/baby_tap.html" class="app-card">
+                <div>
+                    <div class="card-header">
+                        <div class="app-icon">🎨</div>
+                        <div class="app-title-group">
+                            <h2>Baby Color Tap</h2>
+                            <span class="app-tag">Multi-touch • Piano tones</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">A full-screen color playground for babies, with multi-touch input, musical tones, and colorful ripple effects.</p>
+                </div>
+                <div class="card-footer">
+                    <span>Open App</span>
+                    <span>➔</span>
+                </div>
+            </a>
+
+            <!-- Baby Slide -->
+            <a href="webapp/baby_slide.html" class="app-card">
+                <div>
+                    <div class="card-header">
+                        <div class="app-icon">⭕</div>
+                        <div class="app-title-group">
+                            <h2>Baby Slide</h2>
+                            <span class="app-tag">Physics inertia • Gravity return</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Drag a playful circle with physics-based inertia and centripetal attraction. It wraps around the screen and gently returns to the center.</p>
+                </div>
+                <div class="card-footer">
+                    <span>Open App</span>
+                    <span>➔</span>
+                </div>
+            </a>
+        </main>
+
+        <!-- Author profile link -->
+        <section class="author-section">
+            <div class="author-info-text">
+                <h3>👤 About the Author</h3>
+                <p>Exploring minimalism, embedded systems, home servers, and everyday family life.</p>
+            </div>
+            <a href="author.html" class="author-btn">
+                <span>View Author Profile</span>
+                <span>→</span>
+            </a>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 Jacky. All rights reserved. | Nginx & Docker Powered</p>
+        </footer>
+    </div>
+
+</body>
+
+</html>
