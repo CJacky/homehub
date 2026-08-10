@@ -1,12 +1,12 @@
-# Jacky's Web Apps
+# Jacky's Home Hub
 
-A collection of simple, fun, ad-free interactive web apps for families. The project is built with plain HTML, CSS, and vanilla JavaScript, and is hosted as a static site with GitHub Pages.
+Home Hub is a growing collection of practical tools, playful experiments, and small helpers for everyday family life. The original web apps are currently organized under the **Baby App** section. The project is built with plain HTML, CSS, and vanilla JavaScript, and is hosted as a static site with GitHub Pages.
 
 ## Features
 
 ### Baby Color Tap
 
-Entry point: [`webapp/baby_tap.html`](webapp/baby_tap.html)
+Entry point: [`baby-app/baby-tap.html`](baby-app/baby-tap.html)
 
 - Tap or click the screen to change the background color.
 - Supports multi-touch input.
@@ -16,7 +16,7 @@ Entry point: [`webapp/baby_tap.html`](webapp/baby_tap.html)
 
 ### Baby Slide
 
-Entry point: [`webapp/baby_slide.html`](webapp/baby_slide.html)
+Entry point: [`baby-app/baby-slide.html`](baby-app/baby-slide.html)
 
 - Drag the outlined circle to interact with it.
 - Includes inertia, damping, and central gravity.
@@ -28,9 +28,9 @@ Entry point: [`webapp/baby_slide.html`](webapp/baby_slide.html)
 
 | Page | Description |
 | --- | --- |
-| [`index.html`](index.html) | Web App launcher |
-| [`webapp/baby_tap.html`](webapp/baby_tap.html) | Baby Color Tap |
-| [`webapp/baby_slide.html`](webapp/baby_slide.html) | Baby Slide |
+| [`index.html`](index.html) | Home Hub landing page and tool directory |
+| [`baby-app/baby-tap.html`](baby-app/baby-tap.html) | Baby App · Baby Color Tap |
+| [`baby-app/baby-slide.html`](baby-app/baby-slide.html) | Baby App · Baby Slide |
 | [`author.html`](author.html) | Author profile and personal information |
 | [`404.html`](404.html) | Custom 404 error page for GitHub Pages |
 
@@ -38,15 +38,15 @@ Entry point: [`webapp/baby_slide.html`](webapp/baby_slide.html)
 
 ```text
 .
-├── index.html                 # Web App launcher
+├── index.html                 # Home Hub landing page
 ├── author.html                # Author profile page
 ├── 404.html                   # Custom GitHub Pages 404 page
 ├── image/
 │   └── profile.png            # Author profile photo
-└── webapp/
-    ├── baby_tap.html          # Baby Color Tap
-    ├── baby_slide.html        # Baby Slide
-    ├── common.css             # Shared Web App styles
+└── baby-app/                  # Baby App tools
+    ├── baby-tap.html          # Baby Color Tap
+    ├── baby-slide.html        # Baby Slide
+    ├── common.css             # Shared Baby App styles
     └── common.js              # Shared audio, particle, and navigation module
 ```
 
@@ -73,9 +73,9 @@ Then open <http://localhost:8080>.
 3. Select the branch containing the project and the `/ (root)` folder as the publishing source.
 4. Save the configuration and open the generated Pages URL.
 
-The publishing source must contain `index.html` at its top level. Pages under `webapp/` use relative paths for shared resources, so preserve the existing directory structure. The custom `404.html` file is automatically used for missing pages.
+The publishing source must contain `index.html` at its top level. Pages under `baby-app/` use relative paths for shared resources, so preserve the existing directory structure. The custom `404.html` file is automatically used for missing pages.
 
-This project does not require Node.js, package installation, or a build step. The launcher and author page load Google Fonts; system fallback fonts are used if Google Fonts is unavailable.
+This project does not require Node.js, package installation, or a build step. The Home Hub and author page load Google Fonts; system fallback fonts are used if Google Fonts is unavailable.
 
 ## Technical Details
 
@@ -84,14 +84,14 @@ This project does not require Node.js, package installation, or a build step. Th
 - **Audio:** Web Audio API with single tones and arpeggios
 - **Animation:** CSS Animation, `requestAnimationFrame`, and Web Animations API
 - **Responsive design:** Desktop and full-screen mobile interaction
-- **External resource:** Google Fonts, used only by the launcher and author page
+- **External resource:** Google Fonts, used only by Home Hub and the author page
 
-`webapp/common.js` provides the following shared functionality:
+`baby-app/common.js` provides the following shared functionality:
 
 - `WebAudioEngine`: audio unlocking, single-tone playback, and arpeggios.
 - `ParticleEngine`: drag trails and edge-wrap explosions.
 - `BabyModel`: colors, musical frequencies, and random selection for Baby Color Tap.
-- Automatic injection of the floating button that returns to the app launcher.
+- Automatic injection of the floating button that returns to Home Hub.
 
 ## Browser Notes
 

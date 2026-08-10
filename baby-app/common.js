@@ -1,5 +1,5 @@
 /* ==========================================
-   Shared Baby Web App JavaScript module (common.js)
+   Shared Baby App JavaScript module (common.js)
    Includes the Web Audio engine, particle effects, and automatic navigation
    ========================================== */
 
@@ -91,7 +91,8 @@ const ParticleEngine = {
         p.className = 'particle';
         const colors = options.colors || ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F1C', '#9B5DE5', '#1A1A1A'];
         const color = colors[Math.floor(Math.random() * colors.length)];
-        const size = Math.floor(Math.random() * 12) + 8;
+        const maxSize = Math.max(14, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.0625));
+        const size = Math.floor(Math.random() * (maxSize - 14 + 1)) + 14;
 
         p.style.width = `${size}px`;
         p.style.height = `${size}px`;
@@ -148,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const homeBtn = document.createElement('a');
         homeBtn.href = '../index.html';
         homeBtn.className = 'home-nav-btn';
-        homeBtn.title = 'Back to App Launcher';
+        homeBtn.title = 'Back to Home Hub';
         homeBtn.innerHTML = '🏠';
         document.body.appendChild(homeBtn);
     }

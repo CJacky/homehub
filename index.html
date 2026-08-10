@@ -4,300 +4,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jacky's Web Apps Launcher 🚀</title>
-    <!-- Google Fonts -->
+    <meta name="description" content="Home Hub is Jacky's collection of practical, playful tools for everyday family life.">
+    <title>Home Hub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0F172A;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --primary-accent: #38BDF8;
-            --primary-gradient: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
+            --bg-color: #0f172a;
+            --surface: rgba(30, 41, 59, 0.72);
+            --surface-muted: rgba(15, 23, 42, 0.62);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.15);
+            --gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            --text: #f8fafc;
+            --muted: #94a3b8;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
+            min-height: 100vh;
+            padding: 32px 20px 24px;
+            color: var(--text);
             font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.15) 0px, transparent 50%);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.16) 0, transparent 48%),
+                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.16) 0, transparent 48%);
+        }
+
+        .container { width: 100%; max-width: 1040px; margin: 0 auto; }
+
+        header { margin-bottom: 44px; }
+
+        .eyebrow {
+            display: inline-flex;
             align-items: center;
-            padding: 40px 20px;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
         }
 
-        .container {
-            width: 100%;
-            max-width: 960px;
-        }
-
-        /* Header */
-        header {
-            text-align: center;
-            margin-bottom: 48px;
+        .eyebrow::before {
+            content: '';
+            width: 24px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
         }
 
         header h1 {
-            font-size: clamp(2.2rem, 5vw, 3.2rem);
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+            max-width: 680px;
             margin-bottom: 12px;
+            color: #fff;
+            font-size: clamp(2.8rem, 7vw, 5.2rem);
+            font-weight: 800;
+            letter-spacing: -0.06em;
+            line-height: 0.98;
         }
 
-        header p {
-            color: var(--text-muted);
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
-            font-weight: 400;
+        header h1 span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* App launcher grid */
+        header p { max-width: 620px; color: var(--muted); font-size: clamp(1rem, 2.5vw, 1.2rem); line-height: 1.6; }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .section-heading h2 { font-size: 1.7rem; font-weight: 800; }
+        .section-heading p { color: var(--muted); font-size: 0.95rem; }
+        .section-heading .safety-note { margin-top: 10px; color: #cbd5e1; font-size: 0.84rem; }
+
         .apps-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 28px;
-            margin-bottom: 50px;
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
-        /* Card design */
         .app-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 30px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            min-height: 250px;
+            padding: 26px;
             overflow: hidden;
+            color: var(--text);
+            text-decoration: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .app-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            inset: 0 0 auto;
             height: 4px;
-            background: var(--primary-gradient);
+            background: var(--gradient);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.25s ease;
         }
 
-        .app-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
-        }
+        .app-card:hover { transform: translateY(-5px); border-color: rgba(56, 189, 248, 0.45); box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.55), 0 0 24px rgba(56, 189, 248, 0.16); }
+        .app-card:hover::before { opacity: 1; }
 
-        .app-card:hover::before {
-            opacity: 1;
-        }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; }
+        .app-icon { display: grid; place-items: center; width: 58px; height: 58px; flex: 0 0 auto; font-size: 2.45rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 15px; }
+        .app-title-group h3 { margin-bottom: 5px; color: #fff; font-size: 1.3rem; font-weight: 800; }
+        .app-tag { display: inline-block; padding: 3px 9px; color: var(--accent); font-size: 0.72rem; font-weight: 700; background: var(--accent-soft); border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 20px; }
+        .app-desc { margin-bottom: 22px; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+        .card-footer { display: flex; justify-content: flex-end; gap: 6px; color: var(--accent); font-size: 0.92rem; font-weight: 700; transition: gap 0.2s ease; }
+        .app-card:hover .card-footer { gap: 10px; color: #7dd3fc; }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
+        .author-section { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 26px; background: var(--surface-muted); border: 1px dashed rgba(255, 255, 255, 0.16); border-radius: 20px; }
+        .author-info-text h3 { margin-bottom: 4px; font-size: 1.05rem; }
+        .author-info-text p { color: var(--muted); font-size: 0.9rem; }
+        .author-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; color: #fff; font-weight: 700; text-decoration: none; white-space: nowrap; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; transition: all 0.2s ease; }
+        .author-btn:hover { background: var(--gradient); border-color: transparent; transform: translateY(-2px); }
+        footer { padding-top: 36px; color: var(--muted); font-size: 0.82rem; text-align: center; }
 
-        .app-icon {
-            font-size: 2.8rem;
-            width: 64px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            flex-shrink: 0;
-        }
-
-        .app-title-group h2 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #FFFFFF;
-            margin-bottom: 4px;
-        }
-
-        .app-tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--primary-accent);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-        }
-
-        .app-desc {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--primary-accent);
-            gap: 6px;
-            transition: gap 0.2s ease;
-        }
-
-        .app-card:hover .card-footer {
-            gap: 10px;
-            color: #7DD3FC;
-        }
-
-        /* Author information section */
-        .author-section {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 24px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .author-info-text h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-
-        .author-info-text p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .author-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 22px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #FFFFFF;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .author-btn:hover {
-            background: var(--primary-gradient);
-            border-color: transparent;
-            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
-            transform: translateY(-2px);
-        }
-
-        footer {
-            margin-top: auto;
-            padding-top: 40px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-align: center;
+        @media (max-width: 600px) {
+            body { padding-top: 24px; }
+            header { margin-bottom: 34px; }
+            .section-heading { display: block; }
+            .section-heading p { margin-top: 5px; }
+            .apps-grid { grid-template-columns: 1fr; }
+            .author-section { align-items: flex-start; flex-direction: column; }
         }
     </style>
 </head>
 
 <body>
-
     <div class="container">
-        <!-- Header -->
         <header>
-            <h1>Jacky's Web Apps 🚀</h1>
-            <p>Simple, fun, ad-free interactive apps for families</p>
+            <h1>Home <span>life tools.</span></h1>
+            <p>A growing collection of practical tools, playful experiments, and small helpers for the whole family.</p>
         </header>
 
-        <!-- App list -->
-        <main class="apps-grid">
-            <!-- Baby Color Tap -->
-            <a href="app/baby_tap.html" class="app-card">
-                <div>
-                    <div class="card-header">
-                        <div class="app-icon">🎨</div>
-                        <div class="app-title-group">
-                            <h2>Baby Color Tap</h2>
-                            <span class="app-tag">Multi-touch • Piano tones</span>
-                        </div>
+        <main>
+            <section aria-labelledby="baby-app-title">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="baby-app-title">🧸 Baby App</h2>
+                        <p>Simple sensory play for curious little hands.</p>
+                        <p class="safety-note">🛡️ Safety tip: iOS users can enable Guided Access to prevent accidental touches. Android users can use App Pinning to keep the app open; some devices also offer touch restriction controls.</p>
                     </div>
-                    <p class="app-desc">A full-screen color playground for babies, with multi-touch input, musical tones, and colorful ripple effects.</p>
                 </div>
-                <div class="card-footer">
-                    <span>Open App</span>
-                    <span>➔</span>
-                </div>
-            </a>
 
-            <!-- Baby Slide -->
-            <a href="app/baby_slide.html" class="app-card">
-                <div>
-                    <div class="card-header">
-                        <div class="app-icon">⭕</div>
-                        <div class="app-title-group">
-                            <h2>Baby Slide</h2>
-                            <span class="app-tag">Physics inertia • Gravity return</span>
+                <div class="apps-grid">
+                    <a href="baby-app/baby-tap.html" class="app-card">
+                        <div>
+                            <div class="card-header">
+                                <div class="app-icon">🎨</div>
+                                <div class="app-title-group">
+                                    <h3>Baby Color Tap</h3>
+                                    <span class="app-tag">Multi-touch · Piano tones</span>
+                                </div>
+                            </div>
+                            <p class="app-desc">A full-screen color playground with musical tones and colorful ripple effects.</p>
                         </div>
-                    </div>
-                    <p class="app-desc">Drag a playful circle with physics-based inertia and centripetal attraction. It wraps around the screen and gently returns to the center.</p>
+                        <div class="card-footer"><span>Open tool</span><span>➔</span></div>
+                    </a>
+
+                    <a href="baby-app/baby-slide.html" class="app-card">
+                        <div>
+                            <div class="card-header">
+                                <div class="app-icon">⭕</div>
+                                <div class="app-title-group">
+                                    <h3>Baby Slide</h3>
+                                    <span class="app-tag">Physics · Gravity return</span>
+                                </div>
+                            </div>
+                            <p class="app-desc">Drag a playful circle with inertia and gentle gravity. It wraps around the screen and returns to the center.</p>
+                        </div>
+                        <div class="card-footer"><span>Open tool</span><span>➔</span></div>
+                    </a>
                 </div>
-                <div class="card-footer">
-                    <span>Open App</span>
-                    <span>➔</span>
-                </div>
-            </a>
+            </section>
         </main>
 
-        <!-- Author profile link -->
         <section class="author-section">
             <div class="author-info-text">
-                <h3>👤 About the Author</h3>
-                <p>Exploring minimalism, embedded systems, home servers, and everyday family life.</p>
+                <h3>👤 Made for everyday family life</h3>
+                <p>More home tools and experiments will be added to Home Hub over time.</p>
             </div>
-            <a href="author.html" class="author-btn">
-                <span>View Author Profile</span>
-                <span>→</span>
-            </a>
+            <a href="author.html" class="author-btn"><span>About Jacky</span><span>→</span></a>
         </section>
 
-        <!-- Footer -->
-        <footer>
-            <p>&copy; 2026 Jacky. All rights reserved. | Hosted with GitHub Pages</p>
-        </footer>
+        <footer><p>&copy; 2026 Jacky · Home Hub</p></footer>
     </div>
-
 </body>
 
 </html>

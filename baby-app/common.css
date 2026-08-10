@@ -1,5 +1,5 @@
 /* ==========================================
-   Shared Baby Web App base styles (common.css)
+   Shared Baby App base styles (common.css)
    ========================================== */
 
 * {
@@ -21,7 +21,7 @@ html, body {
     position: fixed;
 }
 
-/* Floating button to return to the Web App launcher */
+/* Floating button to return to the Home Hub */
 .home-nav-btn {
     position: fixed;
     top: 16px;
