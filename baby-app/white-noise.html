@@ -71,9 +71,10 @@
         .display-toggle input:checked + .switch { background: #7ccbd0; }
         .display-toggle input:checked + .switch::after { transform: translateX(17px); background: #fff; }
         .status { color: var(--muted); font-size: .84rem; text-align: right; }
-        .share-row { display: flex; justify-content: flex-end; margin-top: 20px; }
-        .copy-button { padding: 8px 12px; color: var(--muted); font: inherit; font-size: .78rem; background: rgba(255, 255, 255, .42); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; }
+        .share-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+        .copy-button, .reset-button { padding: 8px 12px; color: var(--muted); font: inherit; font-size: .78rem; background: rgba(255, 255, 255, .42); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; }
         .copy-button:hover { color: var(--cyan); border-color: rgba(101, 228, 220, .5); }
+        .reset-button:hover { color: #c06d82; border-color: rgba(192, 109, 130, .45); }
         .hint { margin: 18px 0 0; color: #667694; font-size: .8rem; line-height: 1.5; }
 
         @media (max-width: 560px) {
@@ -127,7 +128,7 @@
                     <div class="status" id="status">Press start to enable sound</div>
                 </div>
             </div>
-            <div class="share-row"><button class="copy-button" id="copyButton" type="button">Copy settings URL</button></div>
+            <div class="share-row"><button class="reset-button" id="resetButton" type="button">Reset to default</button><button class="copy-button" id="copyButton" type="button">Copy settings URL</button></div>
             <p class="hint">Each bar represents one part of the cycle. Drag the sliders to adjust them live. Your browser requires a click to enable audio the first time.</p>
         </section>
     </main>
@@ -142,9 +143,14 @@
         const status = document.getElementById('status');
         const displayToggle = document.getElementById('displayToggle');
         const copyButton = document.getElementById('copyButton');
+        const resetButton = document.getElementById('resetButton');
         const soundType = document.getElementById('soundType');
         const soundModes = ['white', 'pink', 'brown', 'fan', 'rain', 'aircon', 'stream'];
-        const volumes = [35, 68, 82, 55, 28, 40];
+        const DEFAULT_PERIOD = 5;
+        const DEFAULT_VOLUMES = [35, 68, 82, 55, 28, 40];
+        const DEFAULT_SOUND = 'white';
+        const DEFAULT_DISPLAY_PLAYHEAD = true;
+        const volumes = [...DEFAULT_VOLUMES];
         let audioContext;
         let noiseSource;
         let noiseGain;
@@ -251,6 +257,35 @@
                 copyButton.textContent = 'Copy from the address bar';
             }
             setTimeout(() => { copyButton.textContent = 'Copy settings URL'; }, 1800);
+        });
+
+        resetButton.addEventListener('click', () => {
+            periodRange.value = DEFAULT_PERIOD;
+            periodValue.textContent = DEFAULT_PERIOD;
+            volumes.splice(0, volumes.length, ...DEFAULT_VOLUMES);
+            volumeCells.forEach((cell, index) => {
+                const input = cell.querySelector('.vertical-range');
+                input.value = DEFAULT_VOLUMES[index];
+                cell.querySelector('.volume-number').textContent = `${DEFAULT_VOLUMES[index]}%`;
+                cell.classList.remove('active');
+            });
+            displayToggle.checked = DEFAULT_DISPLAY_PLAYHEAD;
+            const previousSound = soundType.value;
+            soundType.value = DEFAULT_SOUND;
+            if (audioContext && previousSound !== DEFAULT_SOUND) {
+                noiseSource.stop();
+                noiseSource.disconnect();
+                createSoundSource();
+            }
+            document.cookie = 'whiteNoiseSetting=; max-age=0; path=/; SameSite=Lax';
+            const url = new URL(window.location.href);
+            url.searchParams.delete('setting');
+            window.history.replaceState({}, '', url);
+            if (isPlaying) {
+                cycleStart = performance.now();
+                updateAudioVolume();
+            }
+            status.textContent = 'Defaults restored';
         });
 
         function createNoise() {

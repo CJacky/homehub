@@ -24,6 +24,14 @@ Entry point: [`baby-app/baby-slide.html`](baby-app/baby-slide.html)
 - Screen wrapping triggers an arpeggio and particle explosion.
 - The circle gradually returns to the center after release.
 
+### Baby Piano
+
+Entry point: [`baby-app/baby-piano.html`](baby-app/baby-piano.html)
+
+- Plays the Chinese pentatonic scale: 宮、商、角、徵、羽 (C, D, E, G, A).
+- Supports multi-touch, mouse, stylus, and keyboard number keys 1–5.
+- Provides colorful, large keys designed for little hands.
+
 ## Pages
 
 | Page | Description |
@@ -31,6 +39,7 @@ Entry point: [`baby-app/baby-slide.html`](baby-app/baby-slide.html)
 | [`index.html`](index.html) | Home Hub landing page and tool directory |
 | [`baby-app/baby-tap.html`](baby-app/baby-tap.html) | Baby App · Baby Color Tap |
 | [`baby-app/baby-slide.html`](baby-app/baby-slide.html) | Baby App · Baby Slide |
+| [`baby-app/baby-piano.html`](baby-app/baby-piano.html) | Baby App · Baby Piano |
 | [`author.html`](author.html) | Author profile and personal information |
 | [`404.html`](404.html) | Custom 404 error page for GitHub Pages |
 
@@ -46,6 +55,7 @@ Entry point: [`baby-app/baby-slide.html`](baby-app/baby-slide.html)
 └── baby-app/                  # Baby App tools
     ├── baby-tap.html          # Baby Color Tap
     ├── baby-slide.html        # Baby Slide
+    ├── baby-piano.html        # Baby Piano
     ├── common.css             # Shared Baby App styles
     └── common.js              # Shared audio, particle, and navigation module
 ```

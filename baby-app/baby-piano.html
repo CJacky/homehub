@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Baby Piano 🎹</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="common.js"></script>
+    <style>
+        body { color: #493b55; background: linear-gradient(145deg, #fff4cf 0%, #ffd8e8 52%, #cfeeff 100%); }
+        .piano-stage { width: 100vw; height: 100vh; text-align: center; }
+        .intro { position: absolute; top: clamp(22px, 7vh, 64px); left: 0; width: 100%; z-index: 2; pointer-events: none; }
+        h1 { margin: 0; color: #493b55; font-size: clamp(2rem, 7vw, 3.8rem); font-weight: 900; letter-spacing: .05em; text-shadow: 0 4px 0 rgba(255,255,255,.75); }
+        .subtitle { margin: 8px 0 0; color: #795f7e; font-size: clamp(.9rem, 3vw, 1.25rem); font-weight: 700; }
+        .piano { display: grid; grid-template-columns: repeat(5, 1fr); width: 100%; height: 100%; gap: clamp(3px, .7vw, 8px); padding: 0 clamp(3px, .7vw, 8px); background: rgba(120,78,95,.18); }
+        .key { min-width: 0; height: 100%; padding: 22px 8px 8vh; color: #493b55; font: inherit; background: linear-gradient(180deg, #fff 0%, var(--key-color) 100%); border: 0; border-radius: 0 0 22px 22px; box-shadow: 0 9px 0 rgba(89,57,82,.22), inset 0 0 0 3px rgba(255,255,255,.65); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; touch-action: none; transition: transform .08s ease, box-shadow .08s ease, filter .08s ease; }
+        .key:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
+        .key:active, .key.playing { transform: translateY(8px); box-shadow: 0 1px 0 rgba(89,57,82,.22), inset 0 0 0 3px rgba(255,255,255,.7); filter: saturate(1.2) brightness(1.03); }
+        .key .note { font-size: clamp(2rem, 7vw, 3.6rem); font-weight: 900; }
+        .key .scale { font-size: clamp(1rem, 3.5vw, 1.45rem); font-weight: 800; }
+        .key .hint { color: rgba(73,59,85,.7); font-size: .82rem; font-weight: 700; }
+        .tip { position: absolute; bottom: 18px; left: 0; width: 100%; margin: 0; color: #795f7e; font-size: clamp(.8rem, 2.5vw, 1rem); font-weight: 700; pointer-events: none; }
+        @media (max-width: 520px) { .piano { gap: 2px; padding: 0 2px; } .key { padding: 14px 2px 7vh; border-radius: 0 0 13px 13px; } .key .hint { font-size: .68rem; } }
+    </style>
+</head>
+<body>
+    <main class="piano-stage">
+        <h1>寶寶小鋼琴 🎹</h1>
+        <p class="subtitle">宮・商・角・徵・羽，輕輕按下就會唱歌</p>
+        <div class="piano" aria-label="中華五聲音階小鋼琴">
+            <button class="key" style="--key-color:#ffd6e7" data-freq="261.63" data-key="1" aria-label="宮，Do"><span class="note">宮</span><span class="scale">Do</span><span class="hint">1</span></button>
+            <button class="key" style="--key-color:#ffe4b8" data-freq="293.66" data-key="2" aria-label="商，Re"><span class="note">商</span><span class="scale">Re</span><span class="hint">2</span></button>
+            <button class="key" style="--key-color:#fff2ae" data-freq="329.63" data-key="3" aria-label="角，Mi"><span class="note">角</span><span class="scale">Mi</span><span class="hint">3</span></button>
+            <button class="key" style="--key-color:#c9efd9" data-freq="392.00" data-key="4" aria-label="徵，Sol"><span class="note">徵</span><span class="scale">Sol</span><span class="hint">4</span></button>
+            <button class="key" style="--key-color:#cce5ff" data-freq="440.00" data-key="5" aria-label="羽，La"><span class="note">羽</span><span class="scale">La</span><span class="hint">5</span></button>
+        </div>
+        <p class="tip">小手手可以一起按幾個鍵喔！</p>
+    </main>
+    <script>
+        const keys = [...document.querySelectorAll('.key')];
+        const keyByCode = new Map(keys.map(key => [`Digit${key.dataset.key}`, key]));
+        function playKey(key) {
+            if (key.dataset.active === 'true') return;
+            key.dataset.active = 'true';
+            key.classList.add('playing');
+            WebAudioEngine.playTone(Number(key.dataset.freq), 0.65, 'triangle', false);
+            const rect = key.getBoundingClientRect();
+            ParticleEngine.createExplosion(rect.left + rect.width / 2, rect.top + 50, 8);
+        }
+        function releaseKey(key) { key.dataset.active = 'false'; key.classList.remove('playing'); }
+        keys.forEach(key => {
+            key.addEventListener('pointerdown', event => { event.preventDefault(); key.setPointerCapture(event.pointerId); playKey(key); });
+            key.addEventListener('pointerup', () => releaseKey(key));
+            key.addEventListener('pointercancel', () => releaseKey(key));
+            key.addEventListener('lostpointercapture', () => releaseKey(key));
+        });
+        window.addEventListener('keydown', event => { const key = keyByCode.get(event.code); if (!key || event.repeat) return; event.preventDefault(); playKey(key); });
+        window.addEventListener('keyup', event => { const key = keyByCode.get(event.code); if (key) releaseKey(key); });
+    </script>
+</body>
+</html>
