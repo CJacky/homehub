@@ -5,25 +5,35 @@
 
 // 1. Web Audio engine with iOS Safari audio unlocking
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-const audioCtx = AudioContextClass ? new AudioContextClass() : null;
+let audioCtx = null;
 let audioUnlockPromise = null;
 
+function getAudioContext() {
+    // iOS Safari/WebKit requires the context itself to be created from a
+    // user gesture. Creating it while the page loads can leave it muted.
+    if (!audioCtx && AudioContextClass) {
+        audioCtx = new AudioContextClass();
+    }
+    return audioCtx;
+}
+
 function unlockAudio() {
-    if (!audioCtx) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
 
     // Keep resume() and source.start() inside the input event. iOS Safari
     // rejects audio nodes created from a later Promise callback as autoplay.
-    if (audioCtx.state !== 'running' && !audioUnlockPromise) {
-        audioUnlockPromise = Promise.resolve(audioCtx.resume())
+    if (ctx.state !== 'running' && !audioUnlockPromise) {
+        audioUnlockPromise = Promise.resolve(ctx.resume())
             .catch(() => {})
             .then(() => { audioUnlockPromise = null; });
     }
 
     // Start this synchronously as part of the touch/pointer gesture.
-    const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-    const source = audioCtx.createBufferSource();
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const source = ctx.createBufferSource();
     source.buffer = buffer;
-    source.connect(audioCtx.destination);
+    source.connect(ctx.destination);
     source.start(0);
 
     window.removeEventListener('touchstart', unlockAudio, true);
@@ -35,7 +45,7 @@ window.addEventListener('pointerdown', unlockAudio, true);
 const WebAudioEngine = {
     // Play a single tone (sine or triangle waveform)
     playTone(freq, duration = 0.12, type = 'sine', rampGain = true) {
-        const ctx = audioCtx;
+        const ctx = getAudioContext();
         if (!ctx) return;
         unlockAudio();
 
@@ -61,7 +71,7 @@ const WebAudioEngine = {
 
     // Play a rising arpeggio (celebration or edge-wrap sound)
     playArpeggio(freqs = [523.25, 659.25, 783.99, 1046.50], noteDuration = 0.18, stepTime = 0.05) {
-        const ctx = audioCtx;
+        const ctx = getAudioContext();
         if (!ctx) return;
         unlockAudio();
 
