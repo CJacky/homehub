@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>White Noise Cycle · Home Hub</title>
+    <style>
+        :root {
+            --ink: #2c3e50;
+            --muted: #6c7a89;
+            --panel: rgba(255, 255, 255, 0.68);
+            --line: rgba(44, 62, 80, 0.14);
+            --cyan: #62b9d8;
+            --violet: #9b8be9;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { min-height: 100%; margin: 0; }
+
+        body {
+            min-height: 100vh;
+            padding: 28px 20px 34px;
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #fff6e9 0%, #e3f2fd 50%, #f3e5f5 100%);
+            background-attachment: fixed;
+        }
+
+        .page { width: min(820px, 100%); margin: 0 auto; }
+        .home-link { display: inline-flex; align-items: center; padding: 9px 14px; color: #536477; font-size: .86rem; font-weight: 700; text-decoration: none; background: rgba(255, 255, 255, .78); border: 1px solid rgba(255, 255, 255, .9); border-radius: 999px; box-shadow: 0 4px 12px rgba(44, 62, 80, .1); transition: transform .2s, background .2s; }
+        .home-link:hover { color: #2c3e50; background: #fff; transform: translateY(-2px); }
+        header { margin: 34px 0 30px; text-align: center; }
+        .kicker { margin: 0 0 10px; color: #7e70cf; font-size: .76rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+        h1 { margin: 0 0 12px; color: #2c3e50; font-size: clamp(2.1rem, 7vw, 4.3rem); letter-spacing: 2px; line-height: .98; text-shadow: 0 4px 12px rgba(0, 0, 0, .08); }
+        header p { max-width: 520px; margin: 0 auto; color: var(--muted); line-height: 1.65; }
+
+        .panel { padding: clamp(20px, 5vw, 36px); background: var(--panel); border: 1px solid rgba(255, 255, 255, .78); border-radius: 26px; box-shadow: 0 18px 42px rgba(44, 62, 80, .14); backdrop-filter: blur(14px); }
+        .period-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 12px; }
+        .label { color: var(--muted); font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .period-value { color: #4d8fba; font-size: 1.35rem; font-weight: 800; white-space: nowrap; }
+        input[type="range"] { width: 100%; margin: 0; accent-color: var(--cyan); cursor: pointer; }
+        .period-range { height: 32px; }
+        .range-scale { display: flex; justify-content: space-between; margin-top: -2px; color: #667694; font-size: .75rem; }
+        .sound-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 26px; }
+        .sound-select { min-width: 190px; padding: 10px 34px 10px 12px; color: var(--ink); font: inherit; font-size: .88rem; background-color: rgba(255, 255, 255, .72); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+        .sound-select:focus { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+        .chart { display: flex; align-items: end; justify-content: space-around; gap: clamp(8px, 3vw, 22px); min-height: 285px; margin: 35px 0 24px; padding: 28px 8px 0; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(to top, transparent 0, transparent 70px, rgba(44, 62, 80, .07) 71px); }
+        .volume-cell { display: flex; flex: 1; flex-direction: column; align-items: center; gap: 11px; min-width: 28px; }
+        .volume-number { color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
+        .vertical-range { width: 42px; height: 210px; margin: 0; writing-mode: vertical-lr; direction: rtl; accent-color: var(--violet); }
+        .volume-name { color: #708090; font-size: .76rem; }
+        .volume-cell.active .volume-number { color: var(--cyan); font-weight: 800; }
+        .volume-cell.active .vertical-range { accent-color: var(--cyan); filter: drop-shadow(0 0 7px rgba(101, 228, 220, .55)); }
+        .volume-cell.active .volume-name { color: var(--cyan); font-weight: 800; }
+        .volume-cell.active .volume-name::after { content: ' · playing'; font-size: .68rem; }
+
+        .controls { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+        .play-button { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; color: #fff; font: inherit; font-weight: 800; background: #ee91a9; border: 0; border-radius: 13px; box-shadow: 0 6px 14px rgba(238, 145, 169, .28); cursor: pointer; transition: transform .2s, background .2s; }
+        .play-button:hover { transform: translateY(-2px); background: #f2a2b7; }
+        .play-button:active { transform: translateY(0); }
+        .play-button.is-playing { color: #fff; background: #7f9cda; box-shadow: 0 6px 14px rgba(127, 156, 218, .28); }
+        .display-toggle { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); font-size: .84rem; cursor: pointer; }
+        .display-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+        .switch { position: relative; width: 40px; height: 23px; background: #b8c2cf; border-radius: 99px; transition: background .2s; }
+        .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; background: #fff; border-radius: 50%; transition: transform .2s; }
+        .display-toggle input:checked + .switch { background: #7ccbd0; }
+        .display-toggle input:checked + .switch::after { transform: translateX(17px); background: #fff; }
+        .status { color: var(--muted); font-size: .84rem; text-align: right; }
+        .share-row { display: flex; justify-content: flex-end; margin-top: 20px; }
+        .copy-button { padding: 8px 12px; color: var(--muted); font: inherit; font-size: .78rem; background: rgba(255, 255, 255, .42); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; }
+        .copy-button:hover { color: var(--cyan); border-color: rgba(101, 228, 220, .5); }
+        .hint { margin: 18px 0 0; color: #667694; font-size: .8rem; line-height: 1.5; }
+
+        @media (max-width: 560px) {
+            body { padding: 20px 14px 26px; }
+            header { margin-top: 30px; }
+            .panel { border-radius: 20px; }
+            .chart { min-height: 255px; margin-top: 28px; padding-left: 0; padding-right: 0; }
+            .vertical-range { height: 180px; width: 36px; }
+            .controls { align-items: flex-start; flex-direction: column; }
+            .status { text-align: left; }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <a class="home-link" href="../index.html">← Back to Home Hub</a>
+
+        <header>
+            <p class="kicker">Sleep sound / 01</p>
+            <h1>White Noise Cycle 🌙</h1>
+            <p>Shape a gentle looping sound with six volume points. Designed for sleep, focus, and masking background noise.</p>
+        </header>
+
+        <section class="panel" aria-label="White noise controls">
+            <div class="period-row">
+                <span class="label">Cycle length</span>
+                <span class="period-value"><output id="periodValue">5</output> sec</span>
+            </div>
+            <input id="periodRange" class="period-range" type="range" min="1" max="10" step="1" value="5" aria-label="Cycle length, 1 to 10 seconds">
+            <div class="range-scale"><span>1 sec</span><span>10 sec</span></div>
+            <div class="sound-row">
+                <span class="label">Sound type</span>
+                <select class="sound-select" id="soundType" aria-label="Choose a sound type">
+                    <option value="white">White noise</option>
+                    <option value="pink">Pink noise</option>
+                    <option value="brown">Brown noise</option>
+                    <option value="fan">Fan</option>
+                    <option value="rain">Rain</option>
+                    <option value="aircon">Air conditioner</option>
+                    <option value="stream">Stream</option>
+                </select>
+            </div>
+
+            <div class="chart" id="volumeChart" aria-label="6 volume points in the cycle"></div>
+
+            <div class="controls">
+                <button class="play-button" id="playButton" type="button"><span id="playIcon">▶</span><span id="playText">Start playing</span></button>
+                <div>
+                    <label class="display-toggle"><input id="displayToggle" type="checkbox" checked><span class="switch" aria-hidden="true"></span><span>Show playhead</span></label>
+                    <div class="status" id="status">Press start to enable sound</div>
+                </div>
+            </div>
+            <div class="share-row"><button class="copy-button" id="copyButton" type="button">Copy settings URL</button></div>
+            <p class="hint">Each bar represents one part of the cycle. Drag the sliders to adjust them live. Your browser requires a click to enable audio the first time.</p>
+        </section>
+    </main>
+
+    <script>
+        const periodRange = document.getElementById('periodRange');
+        const periodValue = document.getElementById('periodValue');
+        const volumeChart = document.getElementById('volumeChart');
+        const playButton = document.getElementById('playButton');
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+        const status = document.getElementById('status');
+        const displayToggle = document.getElementById('displayToggle');
+        const copyButton = document.getElementById('copyButton');
+        const soundType = document.getElementById('soundType');
+        const soundModes = ['white', 'pink', 'brown', 'fan', 'rain', 'aircon', 'stream'];
+        const volumes = [35, 68, 82, 55, 28, 40];
+        let audioContext;
+        let noiseSource;
+        let noiseGain;
+        let isPlaying = false;
+        let animationFrame;
+        let cycleStart = 0;
+        const volumeCells = [];
+
+        function loadSettingsFromUrl() {
+            const setting = new URLSearchParams(window.location.search).get('setting');
+            if (!setting) return;
+            const values = setting.split('-').map(Number);
+            const isValid = (values.length === 7 || values.length === 8 || values.length === 9) && Number.isInteger(values[0]) && values[0] >= 1 && values[0] <= 10 && values.slice(1, 7).every(value => Number.isInteger(value) && value >= 0 && value <= 100) && (values.length === 7 || values[7] === 0 || values[7] === 1) && (values.length < 9 || Number.isInteger(values[8]) && values[8] >= 0 && values[8] < soundModes.length);
+            if (!isValid) return;
+            periodRange.value = values[0];
+            periodValue.textContent = values[0];
+            volumes.splice(0, volumes.length, ...values.slice(1, 7));
+            if (values.length >= 8) displayToggle.checked = values[7] === 1;
+            if (values.length === 9) soundType.value = soundModes[values[8]];
+        }
+
+        function syncSettingsToUrl() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('setting', [periodRange.value, ...volumes, displayToggle.checked ? 1 : 0, soundModes.indexOf(soundType.value)].join('-'));
+            window.history.replaceState({}, '', url);
+        }
+
+        loadSettingsFromUrl();
+
+        volumes.forEach((volume, index) => {
+            const cell = document.createElement('label');
+            cell.className = 'volume-cell';
+            cell.innerHTML = `<span class="volume-number" id="volumeNumber${index}">${volume}%</span><input class="vertical-range" data-index="${index}" type="range" min="0" max="100" value="${volume}" aria-label="Volume for segment ${index + 1}"><span class="volume-name">${index + 1}</span>`;
+            volumeChart.appendChild(cell);
+            volumeCells.push(cell);
+        });
+
+        function updateAudioVolume(now = performance.now()) {
+            if (!isPlaying || !noiseGain || !audioContext) return null;
+            const periodSeconds = Number(periodRange.value);
+            const period = (Number.isFinite(periodSeconds) && periodSeconds > 0 ? periodSeconds : 5) * 1000;
+            const progress = ((now - cycleStart) % period) / period;
+            const position = progress * volumes.length;
+            const index = Math.floor(position) % volumes.length;
+            const nextIndex = (index + 1) % volumes.length;
+            const blend = position - Math.floor(position);
+            const currentVolume = Number(volumes[index]);
+            const nextVolume = Number(volumes[nextIndex]);
+            const safeCurrentVolume = Number.isFinite(currentVolume) ? currentVolume : 0;
+            const safeNextVolume = Number.isFinite(nextVolume) ? nextVolume : 0;
+            const value = (safeCurrentVolume * (1 - blend) + safeNextVolume * blend) / 100 * 0.28;
+            volumeCells.forEach((cell, cellIndex) => cell.classList.toggle('active', displayToggle.checked && cellIndex === index));
+            const nowAudio = audioContext.currentTime;
+            noiseGain.gain.cancelScheduledValues(nowAudio);
+            noiseGain.gain.setTargetAtTime(value, nowAudio, 0.035);
+            return value;
+        }
+
+        function updateVolumeLabel(input) {
+            const nextValue = Number(input.value);
+            volumes[input.dataset.index] = Number.isFinite(nextValue) ? nextValue : 0;
+            document.getElementById(`volumeNumber${input.dataset.index}`).textContent = `${input.value}%`;
+            syncSettingsToUrl();
+            updateAudioVolume();
+        }
+
+        document.querySelectorAll('.vertical-range').forEach(input => input.addEventListener('input', () => updateVolumeLabel(input)));
+        periodRange.addEventListener('input', () => {
+            periodValue.textContent = periodRange.value;
+            syncSettingsToUrl();
+            updateAudioVolume();
+        });
+
+        displayToggle.addEventListener('change', () => {
+            syncSettingsToUrl();
+            if (displayToggle.checked) {
+                updateAudioVolume();
+            } else {
+                volumeCells.forEach(cell => cell.classList.remove('active'));
+            }
+        });
+
+        copyButton.addEventListener('click', async () => {
+            syncSettingsToUrl();
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                copyButton.textContent = 'Settings URL copied';
+            } catch (error) {
+                copyButton.textContent = 'Copy from the address bar';
+            }
+            setTimeout(() => { copyButton.textContent = 'Copy settings URL'; }, 1800);
+        });
+
+        function createNoise() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            createSoundSource();
+        }
+
+        function createSoundSource() {
+            const duration = soundType.value === 'stream' ? 8 : 4;
+            const bufferSize = audioContext.sampleRate * duration;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            let pinkB0 = 0;
+            let brownLast = 0;
+            let rainDrop = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                const time = i / audioContext.sampleRate;
+                if (soundType.value === 'pink') {
+                    pinkB0 = 0.997 * pinkB0 + white * 0.055;
+                    data[i] = pinkB0 * 2.7;
+                } else if (soundType.value === 'brown') {
+                    brownLast = (brownLast + white * 0.018) / 1.018;
+                    data[i] = brownLast * 3.2;
+                } else if (soundType.value === 'fan') {
+                    data[i] = white * 0.7 + Math.sin(time * 2 * Math.PI * 55) * 0.08;
+                } else if (soundType.value === 'rain') {
+                    if (Math.random() < 0.002) rainDrop = 1;
+                    data[i] = white * 0.16 + rainDrop * Math.sin(time * 2 * Math.PI * 2600) * 0.8;
+                    rainDrop *= 0.996;
+                } else if (soundType.value === 'aircon') {
+                    data[i] = white * 0.52 + Math.sin(time * 2 * Math.PI * 58) * 0.1 + Math.sin(time * 2 * Math.PI * 116) * 0.035;
+                } else if (soundType.value === 'stream') {
+                    brownLast = (brownLast + white * 0.025) / 1.025;
+                    data[i] = white * 0.12 + brownLast * 1.5 + Math.sin(time * 2 * Math.PI * 900) * Math.random() * 0.04;
+                } else {
+                    data[i] = white;
+                }
+            }
+            noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = buffer;
+            noiseSource.loop = true;
+            noiseGain = audioContext.createGain();
+            noiseGain.gain.value = 0;
+            if (soundType.value === 'fan' || soundType.value === 'aircon') {
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = soundType.value === 'aircon' ? 650 : 1100;
+                filter.Q.value = 0.7;
+                noiseSource.connect(filter).connect(noiseGain).connect(audioContext.destination);
+            } else {
+                noiseSource.connect(noiseGain).connect(audioContext.destination);
+            }
+            noiseSource.start();
+        }
+
+        function animateVolume(now) {
+            if (!isPlaying) return;
+            updateAudioVolume(now);
+            animationFrame = requestAnimationFrame(animateVolume);
+        }
+
+        function togglePlayback() {
+            if (!audioContext) createNoise();
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                cycleStart = performance.now();
+                playButton.classList.add('is-playing');
+                playIcon.textContent = '❚❚';
+                playText.textContent = 'Pause';
+                status.textContent = `${soundType.selectedOptions[0].textContent} playing`;
+                const initialVolume = updateAudioVolume();
+                // The first click should produce sound immediately, even when
+                // the gain node is still at its initial value of zero.
+                if (initialVolume !== null) {
+                    noiseGain.gain.cancelScheduledValues(audioContext.currentTime);
+                    noiseGain.gain.setValueAtTime(initialVolume, audioContext.currentTime);
+                }
+                animationFrame = requestAnimationFrame(animateVolume);
+                if (audioContext.state !== 'running') {
+                    audioContext.resume().then(() => {
+                        if (isPlaying) updateAudioVolume();
+                    }).catch(() => {
+                        status.textContent = 'Audio could not start. Please press play again.';
+                    });
+                }
+            } else {
+                cancelAnimationFrame(animationFrame);
+                volumeCells.forEach(cell => cell.classList.remove('active'));
+                noiseGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.08);
+                playButton.classList.remove('is-playing');
+                playIcon.textContent = '▶';
+                playText.textContent = 'Start playing';
+                status.textContent = 'Playback paused';
+            }
+        }
+
+        soundType.addEventListener('change', () => {
+            syncSettingsToUrl();
+            if (!audioContext) return;
+            noiseSource.stop();
+            noiseSource.disconnect();
+            createSoundSource();
+            if (isPlaying) {
+                status.textContent = `${soundType.selectedOptions[0].textContent} playing`;
+                updateAudioVolume();
+            }
+        });
+
+        playButton.addEventListener('click', togglePlayback);
+    </script>
+</body>
+</html>
