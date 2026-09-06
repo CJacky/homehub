@@ -153,26 +153,41 @@
         let cycleStart = 0;
         const volumeCells = [];
 
-        function loadSettingsFromUrl() {
-            const setting = new URLSearchParams(window.location.search).get('setting');
-            if (!setting) return;
+        function applySetting(setting) {
+            if (!setting) return false;
             const values = setting.split('-').map(Number);
             const isValid = (values.length === 7 || values.length === 8 || values.length === 9) && Number.isInteger(values[0]) && values[0] >= 1 && values[0] <= 10 && values.slice(1, 7).every(value => Number.isInteger(value) && value >= 0 && value <= 100) && (values.length === 7 || values[7] === 0 || values[7] === 1) && (values.length < 9 || Number.isInteger(values[8]) && values[8] >= 0 && values[8] < soundModes.length);
-            if (!isValid) return;
+            if (!isValid) return false;
             periodRange.value = values[0];
             periodValue.textContent = values[0];
             volumes.splice(0, volumes.length, ...values.slice(1, 7));
             if (values.length >= 8) displayToggle.checked = values[7] === 1;
             if (values.length === 9) soundType.value = soundModes[values[8]];
+            return true;
+        }
+
+        function loadSavedSettings() {
+            const urlSetting = new URLSearchParams(window.location.search).get('setting');
+            if (applySetting(urlSetting)) {
+                saveSettingCookie(urlSetting);
+                return;
+            }
+            const cookieSetting = document.cookie.split('; ').find(cookie => cookie.startsWith('whiteNoiseSetting='))?.split('=')[1];
+            applySetting(cookieSetting);
+        }
+
+        function saveSettingCookie(setting) {
+            document.cookie = `whiteNoiseSetting=${setting}; max-age=31536000; path=/; SameSite=Lax`;
         }
 
         function syncSettingsToUrl() {
             const url = new URL(window.location.href);
             url.searchParams.set('setting', [periodRange.value, ...volumes, displayToggle.checked ? 1 : 0, soundModes.indexOf(soundType.value)].join('-'));
             window.history.replaceState({}, '', url);
+            saveSettingCookie(url.searchParams.get('setting'));
         }
 
-        loadSettingsFromUrl();
+        loadSavedSettings();
 
         volumes.forEach((volume, index) => {
             const cell = document.createElement('label');
