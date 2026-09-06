@@ -28,8 +28,8 @@ Entry point: [`baby-app/baby-slide.html`](baby-app/baby-slide.html)
 
 Entry point: [`baby-app/baby-piano.html`](baby-app/baby-piano.html)
 
-- Plays the Chinese pentatonic scale: 宮、商、角、徵、羽 (C, D, E, G, A).
-- Supports multi-touch, mouse, stylus, and keyboard number keys 1–5.
+- Plays the Chinese pentatonic scale: Do, Re, Mi, Sol, and La (C, D, E, G, A).
+- Supports multi-touch, mouse, and stylus input.
 - Provides colorful, large keys designed for little hands.
 
 ## Pages
