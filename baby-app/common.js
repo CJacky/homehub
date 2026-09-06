@@ -7,6 +7,7 @@
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 const audioCtx = AudioContextClass ? new AudioContextClass() : null;
 let audioUnlockPromise = null;
+let audioWarmupSource = null;
 
 function removeAudioUnlockListeners() {
     window.removeEventListener('touchstart', unlockAudio, true);
@@ -31,12 +32,17 @@ function unlockAudio() {
         });
     }
 
-    // Start this synchronously as part of the touch/pointer gesture.
-    const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioCtx.destination);
-    source.start(0);
+    // Keep a silent source alive briefly after the gesture. A one-sample
+    // buffer can finish before iOS has opened its audio output route.
+    if (!audioWarmupSource) {
+        const buffer = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * 0.5), audioCtx.sampleRate);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.onended = () => { audioWarmupSource = null; };
+        source.start(0);
+        audioWarmupSource = source;
+    }
 
     if (audioCtx.state === 'running') {
         removeAudioUnlockListeners();
