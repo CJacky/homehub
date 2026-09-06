@@ -5,47 +5,59 @@
 
 // 1. Web Audio engine with iOS Safari audio unlocking
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
+const audioCtx = AudioContextClass ? new AudioContextClass() : null;
 let audioUnlockPromise = null;
 
-function getAudioContext() {
-    // iOS Safari/WebKit requires the context itself to be created from a
-    // user gesture. Creating it while the page loads can leave it muted.
-    if (!audioCtx && AudioContextClass) {
-        audioCtx = new AudioContextClass();
-    }
-    return audioCtx;
+function removeAudioUnlockListeners() {
+    window.removeEventListener('touchstart', unlockAudio, true);
+    window.removeEventListener('touchend', unlockAudio, true);
+    window.removeEventListener('pointerdown', unlockAudio, true);
+    window.removeEventListener('click', unlockAudio, true);
 }
 
 function unlockAudio() {
-    const ctx = getAudioContext();
-    if (!ctx) return;
+    if (!audioCtx) return Promise.resolve(false);
 
-    // Keep resume() and source.start() inside the input event. iOS Safari
-    // rejects audio nodes created from a later Promise callback as autoplay.
-    if (ctx.state !== 'running' && !audioUnlockPromise) {
-        audioUnlockPromise = Promise.resolve(ctx.resume())
-            .catch(() => {})
-            .then(() => { audioUnlockPromise = null; });
+    // Keep resume() and source.start() inside the interaction. Retain the
+    // listeners until iOS confirms the context is running, so a later tap can
+    // retry if the first gesture is rejected.
+    if (audioCtx.state !== 'running' && !audioUnlockPromise) {
+        const attempt = Promise.resolve(audioCtx.resume())
+            .then(() => audioCtx.state === 'running')
+            .catch(() => false);
+        audioUnlockPromise = attempt;
+        attempt.then(() => {
+            if (audioUnlockPromise === attempt) audioUnlockPromise = null;
+        });
     }
 
     // Start this synchronously as part of the touch/pointer gesture.
-    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-    const source = ctx.createBufferSource();
+    const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+    const source = audioCtx.createBufferSource();
     source.buffer = buffer;
-    source.connect(ctx.destination);
+    source.connect(audioCtx.destination);
     source.start(0);
 
-    window.removeEventListener('touchstart', unlockAudio, true);
-    window.removeEventListener('pointerdown', unlockAudio, true);
+    if (audioCtx.state === 'running') {
+        removeAudioUnlockListeners();
+        return Promise.resolve(true);
+    }
+
+    const pendingUnlock = audioUnlockPromise || Promise.resolve(false);
+    pendingUnlock.then((isReady) => {
+        if (isReady) removeAudioUnlockListeners();
+    });
+    return pendingUnlock;
 }
 window.addEventListener('touchstart', unlockAudio, true);
+window.addEventListener('touchend', unlockAudio, true);
 window.addEventListener('pointerdown', unlockAudio, true);
+window.addEventListener('click', unlockAudio, true);
 
 const WebAudioEngine = {
     // Play a single tone (sine or triangle waveform)
     playTone(freq, duration = 0.12, type = 'sine', rampGain = true) {
-        const ctx = getAudioContext();
+        const ctx = audioCtx;
         if (!ctx) return;
         unlockAudio();
 
@@ -71,7 +83,7 @@ const WebAudioEngine = {
 
     // Play a rising arpeggio (celebration or edge-wrap sound)
     playArpeggio(freqs = [523.25, 659.25, 783.99, 1046.50], noteDuration = 0.18, stepTime = 0.05) {
-        const ctx = getAudioContext();
+        const ctx = audioCtx;
         if (!ctx) return;
         unlockAudio();
 
@@ -165,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         homeBtn.innerHTML = '🏠';
         document.body.appendChild(homeBtn);
     }
+
 });
 
 /* Shared interaction model for the baby activities. */
