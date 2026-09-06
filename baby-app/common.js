@@ -9,90 +9,77 @@ const audioCtx = AudioContextClass ? new AudioContextClass() : null;
 let audioUnlockPromise = null;
 
 function unlockAudio() {
-    if (!audioCtx) return Promise.resolve();
-    if (audioUnlockPromise) return audioUnlockPromise;
+    if (!audioCtx) return;
 
-    // iOS Chrome can resolve resume() asynchronously. Wait for it before
-    // scheduling audible nodes, otherwise the first sound may arrive late.
-    audioUnlockPromise = (audioCtx.state !== 'running'
-        ? audioCtx.resume()
-        : Promise.resolve()
-    ).then(() => {
-        // Play a 0.001-second silent buffer to unlock the iOS audio pipeline.
-        const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-        const source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioCtx.destination);
-        source.start(0);
-        // Allow a later iOS interruption/suspension to be recovered too.
-        audioUnlockPromise = null;
-    }).catch(() => {
-        // A later user gesture can retry if the browser rejects this attempt.
-        audioUnlockPromise = null;
-    });
+    // Keep resume() and source.start() inside the input event. iOS Safari
+    // rejects audio nodes created from a later Promise callback as autoplay.
+    if (audioCtx.state !== 'running' && !audioUnlockPromise) {
+        audioUnlockPromise = Promise.resolve(audioCtx.resume())
+            .catch(() => {})
+            .then(() => { audioUnlockPromise = null; });
+    }
+
+    // Start this synchronously as part of the touch/pointer gesture.
+    const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
 
     window.removeEventListener('touchstart', unlockAudio, true);
     window.removeEventListener('pointerdown', unlockAudio, true);
-    return audioUnlockPromise;
 }
 window.addEventListener('touchstart', unlockAudio, true);
 window.addEventListener('pointerdown', unlockAudio, true);
 
 const WebAudioEngine = {
-    whenReady(callback) {
-        if (!audioCtx) return;
-
-        const ready = audioCtx.state === 'running'
-            ? Promise.resolve()
-            : unlockAudio();
-        ready.then(() => {
-            if (audioCtx.state === 'running') callback(audioCtx);
-        });
-    },
-
     // Play a single tone (sine or triangle waveform)
     playTone(freq, duration = 0.12, type = 'sine', rampGain = true) {
-        this.whenReady((ctx) => {
-            const now = ctx.currentTime;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
+        const ctx = audioCtx;
+        if (!ctx) return;
+        unlockAudio();
 
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, now);
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-            if (rampGain) {
-                osc.frequency.exponentialRampToValueAtTime(freq * 1.15, now + duration);
-            }
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
 
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        if (rampGain) {
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.15, now + duration);
+        }
 
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + duration);
-        });
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
     },
 
     // Play a rising arpeggio (celebration or edge-wrap sound)
     playArpeggio(freqs = [523.25, 659.25, 783.99, 1046.50], noteDuration = 0.18, stepTime = 0.05) {
-        this.whenReady((ctx) => {
-            const baseTime = ctx.currentTime;
-            freqs.forEach((freq, index) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const startTime = baseTime + index * stepTime;
+        const ctx = audioCtx;
+        if (!ctx) return;
+        unlockAudio();
 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, startTime);
-                gain.gain.setValueAtTime(0.18, startTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, startTime + noteDuration);
+        const baseTime = ctx.currentTime;
+        freqs.forEach((freq, index) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const startTime = baseTime + index * stepTime;
 
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(startTime);
-                osc.stop(startTime + noteDuration);
-            });
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(0.18, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + noteDuration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + noteDuration);
         });
     }
 };
