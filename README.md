@@ -32,6 +32,15 @@ Entry point: [`baby-app/baby-piano.html`](baby-app/baby-piano.html)
 - Supports multi-touch, mouse, and stylus input.
 - Provides colorful, large keys designed for little hands.
 
+### Baby Guitar
+
+Entry point: [`baby-app/baby-guitar.html`](baby-app/baby-guitar.html)
+
+- Uses the safe C major pentatonic notes so random play stays harmonious.
+- Provides five open strings tuned to C3, G3, C4, E4, and G4.
+- Supports multi-touch pressing and sliding across large strings; held strings keep gently pulsing.
+- Generates soft plucked-string tones with the Web Audio API.
+
 ## Pages
 
 | Page | Description |
@@ -40,6 +49,7 @@ Entry point: [`baby-app/baby-piano.html`](baby-app/baby-piano.html)
 | [`baby-app/baby-tap.html`](baby-app/baby-tap.html) | Baby App · Baby Color Tap |
 | [`baby-app/baby-slide.html`](baby-app/baby-slide.html) | Baby App · Baby Slide |
 | [`baby-app/baby-piano.html`](baby-app/baby-piano.html) | Baby App · Baby Piano |
+| [`baby-app/baby-guitar.html`](baby-app/baby-guitar.html) | Baby App · Baby Guitar |
 | [`author.html`](author.html) | Author profile and personal information |
 | [`404.html`](404.html) | Custom 404 error page for GitHub Pages |
 
@@ -56,6 +66,7 @@ Entry point: [`baby-app/baby-piano.html`](baby-app/baby-piano.html)
     ├── baby-tap.html          # Baby Color Tap
     ├── baby-slide.html        # Baby Slide
     ├── baby-piano.html        # Baby Piano
+    ├── baby-guitar.html       # Baby Guitar
     ├── common.css             # Shared Baby App styles
     └── modules/               # Small shared modules loaded per activity
         ├── audio.js           # Audio unlock, tones, and arpeggios

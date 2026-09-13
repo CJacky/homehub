@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Baby Guitar 🎸</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="modules/audio.js"></script>
+    <script src="modules/visual.js"></script>
+    <script src="modules/navigation.js"></script>
+    <style>
+        body { color: #493b55; background: linear-gradient(145deg, #fff4cf 0%, #ffd8e8 52%, #cfeeff 100%); }
+        .guitar-stage { width: 100vw; height: 100vh; text-align: center; }
+        .intro { position: absolute; top: clamp(22px, 7vh, 64px); left: 0; width: 100%; z-index: 2; pointer-events: none; }
+        h1 { margin: 0; color: #493b55; font-size: clamp(2rem, 7vw, 3.8rem); font-weight: 900; letter-spacing: .05em; text-shadow: 0 4px 0 rgba(255,255,255,.75); }
+        .subtitle { margin: 8px 0 0; color: #795f7e; font-size: clamp(.9rem, 3vw, 1.25rem); font-weight: 700; }
+        .strings { display: flex; flex-direction: column; justify-content: center; gap: clamp(12px, 2.5vh, 24px); width: 100%; height: 100%; padding: 17vh 7vw 8vh; }
+        .string { position: relative; min-height: clamp(54px, 11vh, 100px); padding: 0; border: 0; border-radius: 24px; background: linear-gradient(180deg, #fff 0%, var(--string-color) 100%); box-shadow: 0 8px 0 rgba(89,57,82,.2), inset 0 0 0 3px rgba(255,255,255,.7); cursor: pointer; touch-action: none; transition: transform .08s ease, box-shadow .08s ease, filter .08s ease; }
+        .string::before { content: ''; position: absolute; left: 7%; right: 7%; top: 50%; height: clamp(7px, 1.2vh, 12px); border-radius: 99px; background: linear-gradient(180deg, #fff8d0, #b28d70); box-shadow: 0 2px 0 rgba(75,45,45,.26); transform: translateY(-50%); pointer-events: none; }
+        .string::after { content: attr(data-note); position: absolute; right: 10%; top: 50%; transform: translateY(-50%); color: rgba(73,59,85,.7); font-size: clamp(1.2rem, 4vw, 2rem); font-weight: 900; pointer-events: none; }
+        .string:active, .string.playing { transform: translateY(8px); box-shadow: 0 1px 0 rgba(89,57,82,.2), inset 0 0 0 3px rgba(255,255,255,.8); filter: saturate(1.15) brightness(1.03); }
+        .hint { position: absolute; bottom: 2.5vh; left: 0; width: 100%; margin: 0; color: #795f7e; font-size: clamp(.85rem, 2.7vw, 1.1rem); font-weight: 800; pointer-events: none; }
+        .note { position: fixed; z-index: 10; pointer-events: none; color: #fff; font-size: clamp(2rem, 7vw, 4rem); font-weight: 900; text-shadow: 0 3px 0 rgba(89,57,82,.18); animation: float-note .65s ease-out forwards; }
+        @keyframes float-note { from { opacity: 1; transform: translate(-50%, -50%) scale(.7) rotate(-8deg); } to { opacity: 0; transform: translate(-50%, -135%) scale(1.15) rotate(8deg); } }
+        @media (orientation: portrait) { .guitar-stage { position: absolute; top: 50%; left: 50%; width: 100vh; height: 100vw; transform: translate(-50%, -50%) rotate(90deg); } }
+    </style>
+</head>
+<body>
+    <main class="guitar-stage">
+        <div class="intro"><h1>Baby Guitar 🎸</h1><p class="subtitle">壓住琴弦，就會自己唱歌！</p></div>
+        <section class="strings" aria-label="五根安全音階琴弦">
+            <button class="string" style="--string-color:#ffd6e7" data-freq="130.81" data-note="C3" aria-label="C3 弦"></button>
+            <button class="string" style="--string-color:#ffe4b8" data-freq="196" data-note="G3" aria-label="G3 弦"></button>
+            <button class="string" style="--string-color:#fff2ae" data-freq="261.63" data-note="C4" aria-label="C4 弦"></button>
+            <button class="string" style="--string-color:#c9efd9" data-freq="329.63" data-note="E4" aria-label="E4 弦"></button>
+            <button class="string" style="--string-color:#cce5ff" data-freq="392" data-note="G4" aria-label="G4 弦"></button>
+        </section>
+        <p class="hint">按住或滑過琴弦　・　每一根弦都很好聽</p>
+    </main>
+    <script>
+        const strings = [...document.querySelectorAll('.string')];
+        const safeNotes = [
+            [130.81, 146.83, 164.81, 196, 220],
+            [196, 220, 261.63, 293.66, 329.63],
+            [261.63, 293.66, 329.63, 392, 440],
+            [329.63, 392, 440, 261.63, 293.66],
+            [392, 440, 261.63, 293.66, 329.63]
+        ];
+        const activePointers = new Map();
+        function showNote(event, text) { const note = document.createElement('span'); note.className = 'note'; note.textContent = text; note.style.left = `${event.clientX}px`; note.style.top = `${event.clientY}px`; document.body.appendChild(note); setTimeout(() => note.remove(), 650); }
+        function noteIndex(string, event) {
+            const rect = string.getBoundingClientRect();
+            return Math.max(0, Math.min(4, Math.floor(((event.clientX - rect.left) / rect.width) * 5)));
+        }
+
+        function pluck(state, event, force = false) {
+            const index = noteIndex(state.string, event);
+            if (!force && index === state.noteIndex) return;
+            state.noteIndex = index;
+            state.string.classList.add('playing');
+            WebAudioEngine.playPluck(safeNotes[state.stringIndex][index], .72, .72);
+            ParticleEngine.createExplosion(event.clientX, event.clientY, 3);
+            showNote(event, ['C', 'D', 'E', 'G', 'A'][index]);
+            clearTimeout(state.visualTimer);
+            state.visualTimer = setTimeout(() => state.string.classList.remove('playing'), 150);
+        }
+
+        function stopPointer(event) {
+            const state = activePointers.get(event.pointerId);
+            if (!state) return;
+            clearInterval(state.pulseTimer);
+            clearTimeout(state.visualTimer);
+            activePointers.delete(event.pointerId);
+            state.string.classList.remove('playing');
+        }
+
+        strings.forEach((string) => {
+            const stringIndex = strings.indexOf(string);
+            string.addEventListener('pointerdown', (event) => {
+                event.preventDefault();
+                const state = { string, stringIndex, noteIndex: -1, visualTimer: null, pulseTimer: null };
+                activePointers.set(event.pointerId, state);
+                string.setPointerCapture(event.pointerId);
+                pluck(state, event, true);
+            state.lastEvent = event;
+            state.pulseTimer = setInterval(() => pluck(state, state.lastEvent, true), 240);
+            });
+            string.addEventListener('pointermove', (event) => {
+                const state = activePointers.get(event.pointerId);
+                if (state) { state.lastEvent = event; pluck(state, event); }
+            });
+            string.addEventListener('pointerup', stopPointer);
+            string.addEventListener('pointercancel', stopPointer);
+            string.addEventListener('lostpointercapture', stopPointer);
+        });
+    </script>
+</body>
+</html>

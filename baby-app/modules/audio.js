@@ -93,6 +93,33 @@
                 oscillator.start(startTime);
                 oscillator.stop(startTime + noteDuration);
             });
+        },
+
+        playPluck(freq, duration = 0.9, velocity = 0.7, startOffset = 0) {
+            if (!audioContext) return;
+            unlockAudio();
+            const startTime = audioContext.currentTime + startOffset;
+            const oscillator = audioContext.createOscillator();
+            const harmonic = audioContext.createOscillator();
+            const filter = audioContext.createBiquadFilter();
+            const gain = audioContext.createGain();
+            oscillator.type = 'triangle';
+            harmonic.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, startTime);
+            harmonic.frequency.setValueAtTime(freq * 2, startTime);
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(Math.min(2400, freq * 7), startTime);
+            filter.frequency.exponentialRampToValueAtTime(Math.max(500, freq * 2), startTime + duration);
+            gain.gain.setValueAtTime(0.001, startTime);
+            gain.gain.linearRampToValueAtTime(0.14 * velocity, startTime + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            oscillator.connect(filter);
+            harmonic.connect(gain);
+            filter.connect(gain).connect(audioContext.destination);
+            oscillator.start(startTime);
+            harmonic.start(startTime);
+            oscillator.stop(startTime + duration);
+            harmonic.stop(startTime + duration);
         }
     });
 })(window);
