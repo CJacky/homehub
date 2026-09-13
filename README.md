@@ -57,7 +57,11 @@ Entry point: [`baby-app/baby-piano.html`](baby-app/baby-piano.html)
     ├── baby-slide.html        # Baby Slide
     ├── baby-piano.html        # Baby Piano
     ├── common.css             # Shared Baby App styles
-    └── common.js              # Shared audio, particle, and navigation module
+    └── modules/               # Small shared modules loaded per activity
+        ├── audio.js           # Audio unlock, tones, and arpeggios
+        ├── model.js           # Shared colors, frequencies, and helpers
+        ├── navigation.js      # Home Hub navigation button
+        └── visual.js          # Particle trails and explosions
 ```
 
 ## Usage
@@ -96,7 +100,7 @@ This project does not require Node.js, package installation, or a build step. Th
 - **Responsive design:** Desktop and full-screen mobile interaction
 - **External resource:** Google Fonts, used only by Home Hub and the author page
 
-`baby-app/common.js` provides the following shared functionality:
+The files under `baby-app/modules/` provide the following shared functionality:
 
 - `WebAudioEngine`: audio unlocking, single-tone playback, and arpeggios.
 - `ParticleEngine`: drag trails and edge-wrap explosions.
