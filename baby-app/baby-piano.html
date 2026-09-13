@@ -16,45 +16,97 @@
         .intro { position: absolute; top: clamp(22px, 7vh, 64px); left: 0; width: 100%; z-index: 2; pointer-events: none; }
         h1 { margin: 0; color: #493b55; font-size: clamp(2rem, 7vw, 3.8rem); font-weight: 900; letter-spacing: .05em; text-shadow: 0 4px 0 rgba(255,255,255,.75); }
         .subtitle { margin: 8px 0 0; color: #795f7e; font-size: clamp(.9rem, 3vw, 1.25rem); font-weight: 700; }
-        .piano { display: grid; grid-template-columns: repeat(5, 1fr); width: 100%; height: 100%; gap: clamp(3px, .7vw, 8px); padding: 0 clamp(3px, .7vw, 8px); background: rgba(120,78,95,.18); }
+        .piano { display: grid; grid-template-columns: repeat(7, 1fr); width: 100%; height: 100%; gap: clamp(3px, .7vw, 8px); padding: 0 clamp(3px, .7vw, 8px); background: rgba(120,78,95,.18); }
         .key { min-width: 0; height: 100%; padding: 22px 8px 8vh; color: #493b55; font: inherit; background: linear-gradient(180deg, #fff 0%, var(--key-color) 100%); border: 0; border-radius: 0 0 22px 22px; box-shadow: 0 9px 0 rgba(89,57,82,.22), inset 0 0 0 3px rgba(255,255,255,.65); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; touch-action: none; transition: transform .08s ease, box-shadow .08s ease, filter .08s ease; }
         .key:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
         .key:active, .key.playing { transform: translateY(8px); box-shadow: 0 1px 0 rgba(89,57,82,.22), inset 0 0 0 3px rgba(255,255,255,.7); filter: saturate(1.2) brightness(1.03); }
         .key .note { font-size: clamp(2rem, 7vw, 3.6rem); font-weight: 900; }
         .key .scale { font-size: clamp(1rem, 3.5vw, 1.45rem); font-weight: 800; }
         @media (max-width: 520px) { .piano { gap: 2px; padding: 0 2px; } .key { padding: 14px 2px 7vh; border-radius: 0 0 13px 13px; } }
+        @media (orientation: portrait) {
+            .piano-stage {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100vh;
+                height: 100vw;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+        }
     </style>
 </head>
 <body>
     <main class="piano-stage">
         <div class="intro">
             <h1>Baby Piano 🎹</h1>
-            <p class="subtitle">Do · Re · Mi · Sol · La</p>
+            <p class="subtitle">Do · Re · Mi · Fa · Sol · La · Ti</p>
         </div>
-        <div class="piano" aria-label="Chinese pentatonic scale piano">
+        <div class="piano" aria-label="Seven-note scale piano">
             <button class="key" style="--key-color:#ffd6e7" data-freq="261.63" aria-label="Do"><span class="note">Do</span></button>
             <button class="key" style="--key-color:#ffe4b8" data-freq="293.66" aria-label="Re"><span class="note">Re</span></button>
             <button class="key" style="--key-color:#fff2ae" data-freq="329.63" aria-label="Mi"><span class="note">Mi</span></button>
+            <button class="key" style="--key-color:#e4f3b8" data-freq="349.23" aria-label="Fa"><span class="note">Fa</span></button>
             <button class="key" style="--key-color:#c9efd9" data-freq="392.00" aria-label="Sol"><span class="note">Sol</span></button>
             <button class="key" style="--key-color:#cce5ff" data-freq="440.00" aria-label="La"><span class="note">La</span></button>
+            <button class="key" style="--key-color:#dfd4ff" data-freq="493.88" aria-label="Ti"><span class="note">Ti</span></button>
         </div>
     </main>
     <script>
-        const keys = [...document.querySelectorAll('.key')];
+        const piano = document.querySelector('.piano');
+        const activePointers = new Map();
+        const pressedPointers = new Set();
+
+        function lockLandscape() {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(() => {});
+            }
+        }
+
         function playKey(key, x, y) {
-            if (key.dataset.active === 'true') return;
             key.dataset.active = 'true';
             key.classList.add('playing');
             WebAudioEngine.playTone(Number(key.dataset.freq), 0.65, 'triangle', false);
             ParticleEngine.createExplosion(x, y, 8);
         }
         function releaseKey(key) { key.dataset.active = 'false'; key.classList.remove('playing'); }
-        keys.forEach(key => {
-            key.addEventListener('pointerdown', event => { event.preventDefault(); key.setPointerCapture(event.pointerId); playKey(key, event.clientX, event.clientY); });
-            key.addEventListener('pointerup', () => releaseKey(key));
-            key.addEventListener('pointercancel', () => releaseKey(key));
-            key.addEventListener('lostpointercapture', () => releaseKey(key));
+
+        function keyAtPoint(x, y) {
+            const element = document.elementFromPoint(x, y);
+            return element && element.closest ? element.closest('.key') : null;
+        }
+
+        function updatePointer(event) {
+            if (!pressedPointers.has(event.pointerId)) return;
+            const previousKey = activePointers.get(event.pointerId);
+            const nextKey = keyAtPoint(event.clientX, event.clientY);
+            if (nextKey === previousKey) return;
+            if (previousKey) releaseKey(previousKey);
+            if (nextKey && piano.contains(nextKey)) {
+                activePointers.set(event.pointerId, nextKey);
+                playKey(nextKey, event.clientX, event.clientY);
+            } else {
+                activePointers.delete(event.pointerId);
+            }
+        }
+
+        function endPointer(event) {
+            const key = activePointers.get(event.pointerId);
+            if (key) releaseKey(key);
+            activePointers.delete(event.pointerId);
+            pressedPointers.delete(event.pointerId);
+        }
+
+        piano.addEventListener('pointerdown', event => {
+            event.preventDefault();
+            lockLandscape();
+            piano.setPointerCapture(event.pointerId);
+            pressedPointers.add(event.pointerId);
+            updatePointer(event);
         });
+        piano.addEventListener('pointermove', event => { event.preventDefault(); updatePointer(event); });
+        piano.addEventListener('pointerup', endPointer);
+        piano.addEventListener('pointercancel', endPointer);
+        piano.addEventListener('lostpointercapture', endPointer);
     </script>
 </body>
 </html>
